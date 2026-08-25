@@ -1,38 +1,46 @@
 pipeline {
     agent any
-
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'master', url: 'https://github.com/janafadev/online-exam.git'
             }
         }
-
         stage('Prepare Permissions') {
             steps {
                 sh 'chmod +x mvnw'
             }
         }
-
         stage('Compile') {
             steps {
                 sh './mvnw clean compile'
             }
         }
-
         stage('Test') {
             steps {
                 sh './mvnw test'
             }
         }
-
+        stage('Code Quality - SonarQube') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh './mvnw sonar:sonar -Dsonar.projectKey=online-exam'
+                }
+            }
+        }
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
         stage('Package JAR') {
             steps {
                 sh './mvnw clean package -DskipTests'
             }
         }
     }
-
     post {
         always {
             archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
