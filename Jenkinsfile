@@ -30,21 +30,22 @@ pipeline {
 
         stage('Package JAR') {
             steps {
-                sh './mvnw clean package -DskipTests'
+                sh './mvnw package -DskipTests'
             }
         }
     }
 
     post {
         always {
+            echo '📊 Recording JUnit test results...'
+
+            junit 'target/surefire-reports/*.xml'
+
+            echo '📦 Archiving JAR artifact...'
+
             archiveArtifacts(
                 artifacts: 'target/*.jar',
                 allowEmptyArchive: true
-            )
-
-            junit(
-                testResults: 'target/surefire-reports/*.xml',
-                allowEmptyResults: true
             )
         }
 
