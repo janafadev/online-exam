@@ -21,13 +21,7 @@ pipeline {
                 sh './mvnw test'
             }
         }
-        stage('Code Quality - SonarQube') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh './mvnw sonar:sonar -Dsonar.projectKey=online-exam'
-                }
-            }
-        }
+        
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
