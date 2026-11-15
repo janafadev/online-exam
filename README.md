@@ -158,7 +158,8 @@ Le projet intègre un pipeline déclaratif automatisé configuré dans le fichie
 3. **Compile** : Compilation propre du code (`./mvnw clean compile`).
 4. **Test** : Exécution des tests automatisés avec Maven (`./mvnw test`).
 5. **Package JAR** : Génération du livrable JAR (`./mvnw package -DskipTests`).
-6. **Post-Actions** :
+6. **Security Scan** : Analyse des vulnérabilités de sécurité et dépendances (Trivy / OWASP).
+7. **Post-Actions** :
    - Enregistrement et publication des résultats JUnit (`target/surefire-reports/*.xml`).
    - Archivage de l'artefact JAR (`target/*.jar`).
 
