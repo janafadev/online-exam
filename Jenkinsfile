@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     triggers {
-        githubPush()
+        pollSCM('H/2 * * * *')
     }
 
     options {
@@ -108,7 +108,23 @@ pipeline {
                             -v exam-uploads:/app/uploads \
                             "$IMAGE_NAME"
 
-                        docker container inspect --format='{{.State.Running}}' online-exam | grep -q true
+                        for i in $(seq 1 30); do
+                            if docker logs online-exam 2>&1 | grep -q "Started "; then
+                                echo "✅ Application démarrée"
+                                docker image prune -f
+                                exit 0
+                            fi
+                            if [ "$(docker container inspect --format='{{.State.Running}}' online-exam)" != "true" ]; then
+                                echo "❌ Le conteneur s'est arrêté"
+                                docker logs online-exam
+                                exit 1
+                            fi
+                            sleep 2
+                        done
+
+                        echo "❌ Timeout au démarrage"
+                        docker logs online-exam
+                        exit 1
                     '''
                 }
             }
@@ -119,7 +135,7 @@ pipeline {
         always {
             echo '📊 Recording JUnit test results...'
 
-            junit 'target/surefire-reports/*.xml'
+            junit allowEmptyResults: true, testResults: 'target/surefire-reports/*.xml'
 
             echo '📦 Archiving JAR artifact...'
 

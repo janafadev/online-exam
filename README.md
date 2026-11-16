@@ -178,14 +178,14 @@ Ce pipeline construit et lance l'image directement dans Docker Desktop ; il ne p
    Le montage du socket donne à Jenkins le contrôle du moteur Docker de l'hôte ; n'activez cette configuration que pour une instance Jenkins de confiance.
 2. Dans **Manage Jenkins > Credentials**, ajoutez un identifiant **Username with password** `exam-db-credentials` contenant l'utilisateur et le mot de passe MySQL utilisés par l'application. Aucun identifiant Docker Hub ni variable `DOCKERHUB_REPOSITORY` n'est nécessaire.
 3. Vérifiez que MySQL est accessible depuis l'hôte Docker Desktop au port `3307`. Le déploiement utilise les paramètres `MYSQL_HOST_PORT` (valeur par défaut `3307`) et `MYSQL_DATABASE` (valeur par défaut `exam_db`).
-4. Pour déclencher le job sur un push GitHub, activez le déclencheur **GitHub hook trigger for GITScm polling** et configurez le webhook GitHub vers `https://VOTRE_JENKINS/github-webhook/`. Le Jenkinsfile récupère la branche `master`.
+4. Le Jenkinsfile vérifie automatiquement la branche `master` toutes les deux minutes (`pollSCM`). Aucun webhook GitHub n'est requis ; Jenkins doit rester démarré pour détecter les changements.
 
 ### Étapes du Pipeline
 
 1. **Checkout**, préparation de `mvnw`, compilation et tests.
 2. **Package JAR** et scan de sécurité (Trivy ou Maven).
 3. **Build Docker Image** : construction locale de l'image à partir du Dockerfile.
-4. **Deploy on Jenkins Host** : remplacement du conteneur `online-exam` et lancement sur le port `7890`. Le volume `exam-uploads` conserve les fichiers envoyés.
+4. **Deploy on Jenkins Host** : remplacement du conteneur `online-exam`, attente de son démarrage (jusqu'à 60 secondes), puis lancement sur le port `7890`. Le volume `exam-uploads` conserve les fichiers envoyés.
 5. Publication des résultats JUnit et archivage du JAR.
 
 Après un déploiement réussi, l'application est accessible sur `http://ADRESSE_DE_L_HOTE_JENKINS:7890`. Les identifiants MySQL sont lus depuis les credentials Jenkins, jamais depuis le dépôt.
