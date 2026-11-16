@@ -151,17 +151,26 @@ Une fois lancée, l'application est accessible à l'adresse suivante :
 
 Le projet intègre un pipeline déclaratif automatisé configuré dans le fichier [`Jenkinsfile`](./Jenkinsfile).
 
-### Étapes du Pipeline :
+### Configuration Jenkins requise
 
-1. **Checkout** : Récupération du code source depuis la branche principale.
-2. **Prepare Permissions** : Attribution des droits d'exécution sur `./mvnw`.
-3. **Compile** : Compilation propre du code (`./mvnw clean compile`).
-4. **Test** : Exécution des tests automatisés avec Maven (`./mvnw test`).
-5. **Package JAR** : Génération du livrable JAR (`./mvnw package -DskipTests`).
-6. **Security Scan** : Analyse des vulnérabilités de sécurité et dépendances (Trivy / OWASP).
-7. **Post-Actions** :
-   - Enregistrement et publication des résultats JUnit (`target/surefire-reports/*.xml`).
-   - Archivage de l'artefact JAR (`target/*.jar`).
+L'agent Jenkins qui exécute le pipeline doit avoir Docker installé et être autorisé à utiliser le démon Docker. Configurez les éléments suivants avant le premier lancement :
+
+1. Dans **Manage Jenkins > Credentials**, ajoutez :
+   - un identifiant **Username with password** `dockerhub-credentials` pour Docker Hub (utilisez de préférence un jeton d'accès) ;
+   - un identifiant **Username with password** `exam-db-credentials` contenant l'utilisateur et le mot de passe MySQL utilisés par l'application.
+2. Dans **Manage Jenkins > System > Global properties**, activez les variables d'environnement et ajoutez `DOCKERHUB_REPOSITORY` avec le nom du dépôt Docker Hub, par exemple `mon-compte/online-exam`. Le dépôt doit exister et le compte Jenkins doit pouvoir y publier.
+3. Vérifiez que MySQL est accessible depuis l'hôte Jenkins au port `3307`. Le déploiement utilise les paramètres `MYSQL_HOST_PORT` (valeur par défaut `3307`) et `MYSQL_DATABASE` (valeur par défaut `exam_db`).
+4. Pour déclencher le job sur un push GitHub, activez le déclencheur **GitHub hook trigger for GITScm polling** et configurez le webhook GitHub vers `https://VOTRE_JENKINS/github-webhook/`. Le Jenkinsfile récupère la branche `master`.
+
+### Étapes du Pipeline
+
+1. **Checkout**, préparation de `mvnw`, compilation et tests.
+2. **Package JAR** et scan de sécurité (Trivy ou Maven).
+3. **Build and Push Docker Image** : construction à partir du Dockerfile, puis publication sur Docker Hub avec les tags numéro de build Jenkins et `latest`.
+4. **Deploy on Jenkins Host** : récupération de l'image, remplacement du conteneur `online-exam` et lancement sur le port `7890`. Le volume `exam-uploads` conserve les fichiers envoyés.
+5. Publication des résultats JUnit et archivage du JAR.
+
+Après un déploiement réussi, l'application est accessible sur `http://ADRESSE_DE_L_HOTE_JENKINS:7890`. Les secrets MySQL et Docker Hub sont lus depuis les credentials Jenkins, jamais depuis le dépôt.
 
 ---
 
