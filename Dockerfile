@@ -31,10 +31,8 @@ USER appuser
 # Exposition du port de l'application
 EXPOSE 7890
 
-# Variables d'environnement par défaut
-ENV PORT=7890 \
-    SPRING_PROFILES_ACTIVE=prod
+# Port par défaut de l'application
+ENV PORT=7890
 
 # Commande de démarrage
 ENTRYPOINT ["java", "-jar", "app.jar"]
-

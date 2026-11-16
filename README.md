@@ -153,24 +153,42 @@ Le projet intègre un pipeline déclaratif automatisé configuré dans le fichie
 
 ### Configuration Jenkins requise
 
-L'agent Jenkins qui exécute le pipeline doit avoir Docker installé et être autorisé à utiliser le démon Docker. Configurez les éléments suivants avant le premier lancement :
+Ce pipeline construit et lance l'image directement dans Docker Desktop ; il ne publie pas l'image sur Docker Hub. Le conteneur Jenkins doit donc avoir le client Docker et accéder au moteur Docker Desktop.
 
-1. Dans **Manage Jenkins > Credentials**, ajoutez :
-   - un identifiant **Username with password** `dockerhub-credentials` pour Docker Hub (utilisez de préférence un jeton d'accès) ;
-   - un identifiant **Username with password** `exam-db-credentials` contenant l'utilisateur et le mot de passe MySQL utilisés par l'application.
-2. Dans **Manage Jenkins > System > Global properties**, activez les variables d'environnement et ajoutez `DOCKERHUB_REPOSITORY` avec le nom du dépôt Docker Hub, par exemple `mon-compte/online-exam`. Le dépôt doit exister et le compte Jenkins doit pouvoir y publier.
-3. Vérifiez que MySQL est accessible depuis l'hôte Jenkins au port `3307`. Le déploiement utilise les paramètres `MYSQL_HOST_PORT` (valeur par défaut `3307`) et `MYSQL_DATABASE` (valeur par défaut `exam_db`).
+1. Utilisez [`Dockerfile.jenkins`](./Dockerfile.jenkins) pour construire l'image Jenkins avec le client Docker. Dans le service `jenkins` de votre fichier Compose, ajoutez :
+
+   ```yaml
+   build:
+     context: /chemin/vers/online-exam-system
+     dockerfile: Dockerfile.jenkins
+   group_add:
+     - "${DOCKER_GID}"
+   volumes:
+     - jenkins_home:/var/jenkins_home
+     - /var/run/docker.sock:/var/run/docker.sock
+   ```
+
+   Remplacez le chemin par le chemin absolu du dépôt sur l'hôte. Sur Linux, définissez `DOCKER_GID` avec le groupe du socket Docker avant de lancer Compose :
+
+   ```bash
+   export DOCKER_GID="$(stat -c '%g' /var/run/docker.sock)"
+   docker compose up -d --build jenkins
+   ```
+
+   Le montage du socket donne à Jenkins le contrôle du moteur Docker de l'hôte ; n'activez cette configuration que pour une instance Jenkins de confiance.
+2. Dans **Manage Jenkins > Credentials**, ajoutez un identifiant **Username with password** `exam-db-credentials` contenant l'utilisateur et le mot de passe MySQL utilisés par l'application. Aucun identifiant Docker Hub ni variable `DOCKERHUB_REPOSITORY` n'est nécessaire.
+3. Vérifiez que MySQL est accessible depuis l'hôte Docker Desktop au port `3307`. Le déploiement utilise les paramètres `MYSQL_HOST_PORT` (valeur par défaut `3307`) et `MYSQL_DATABASE` (valeur par défaut `exam_db`).
 4. Pour déclencher le job sur un push GitHub, activez le déclencheur **GitHub hook trigger for GITScm polling** et configurez le webhook GitHub vers `https://VOTRE_JENKINS/github-webhook/`. Le Jenkinsfile récupère la branche `master`.
 
 ### Étapes du Pipeline
 
 1. **Checkout**, préparation de `mvnw`, compilation et tests.
 2. **Package JAR** et scan de sécurité (Trivy ou Maven).
-3. **Build and Push Docker Image** : construction à partir du Dockerfile, puis publication sur Docker Hub avec les tags numéro de build Jenkins et `latest`.
-4. **Deploy on Jenkins Host** : récupération de l'image, remplacement du conteneur `online-exam` et lancement sur le port `7890`. Le volume `exam-uploads` conserve les fichiers envoyés.
+3. **Build Docker Image** : construction locale de l'image à partir du Dockerfile.
+4. **Deploy on Jenkins Host** : remplacement du conteneur `online-exam` et lancement sur le port `7890`. Le volume `exam-uploads` conserve les fichiers envoyés.
 5. Publication des résultats JUnit et archivage du JAR.
 
-Après un déploiement réussi, l'application est accessible sur `http://ADRESSE_DE_L_HOTE_JENKINS:7890`. Les secrets MySQL et Docker Hub sont lus depuis les credentials Jenkins, jamais depuis le dépôt.
+Après un déploiement réussi, l'application est accessible sur `http://ADRESSE_DE_L_HOTE_JENKINS:7890`. Les identifiants MySQL sont lus depuis les credentials Jenkins, jamais depuis le dépôt.
 
 ---
 

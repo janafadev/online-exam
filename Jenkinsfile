@@ -69,32 +69,16 @@ pipeline {
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                    if (!env.DOCKERHUB_REPOSITORY?.trim()) {
-                        error('Configure DOCKERHUB_REPOSITORY dans les propriétés globales de Jenkins (exemple : mon-compte/online-exam).')
-                    }
-                    env.IMAGE_REPOSITORY = env.DOCKERHUB_REPOSITORY.trim()
+                    env.IMAGE_NAME = "online-exam:${env.BUILD_NUMBER}"
                 }
 
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
-                    usernameVariable: 'DOCKERHUB_USERNAME',
-                    passwordVariable: 'DOCKERHUB_TOKEN'
-                )]) {
-                    sh '''
-                        set +x
-                        echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
-                        trap 'docker logout >/dev/null 2>&1 || true' EXIT
-
-                        docker build --pull \
-                            -t "$IMAGE_REPOSITORY:$BUILD_NUMBER" \
-                            -t "$IMAGE_REPOSITORY:latest" .
-                        docker push "$IMAGE_REPOSITORY:$BUILD_NUMBER"
-                        docker push "$IMAGE_REPOSITORY:latest"
-                    '''
-                }
+                sh '''
+                    docker info >/dev/null
+                    docker build --pull -t "$IMAGE_NAME" .
+                '''
             }
         }
 
@@ -107,7 +91,6 @@ pipeline {
                 )]) {
                     sh '''
                         set +x
-                        docker pull "$IMAGE_REPOSITORY:$BUILD_NUMBER"
                         docker volume create exam-uploads
 
                         if docker container inspect online-exam >/dev/null 2>&1; then
@@ -123,7 +106,7 @@ pipeline {
                             --env DB_USERNAME \
                             --env DB_PASSWORD \
                             -v exam-uploads:/app/uploads \
-                            "$IMAGE_REPOSITORY:$BUILD_NUMBER"
+                            "$IMAGE_NAME"
 
                         docker container inspect --format='{{.State.Running}}' online-exam | grep -q true
                     '''
