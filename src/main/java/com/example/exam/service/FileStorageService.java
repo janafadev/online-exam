@@ -26,7 +26,7 @@ public class FileStorageService {
         try {
             Files.createDirectories(this.fileStorageLocation);
         } catch (Exception ex) {
-            throw new RuntimeException("Could not create the directory where the uploaded files will be stored.", ex);
+            throw new RuntimeException("Impossible de créer le répertoire de stockage des fichiers téléversés.", ex);
         }
     }
 
@@ -54,7 +54,7 @@ public class FileStorageService {
         try {
             // Check for invalid characters
             if (uniqueFileName.contains("..")) {
-                throw new RuntimeException("Sorry! Filename contains invalid path sequence " + uniqueFileName);
+                throw new RuntimeException("Le nom du fichier contient une séquence de chemin invalide : " + uniqueFileName);
             }
 
             // Copy file to the target location
@@ -67,7 +67,7 @@ public class FileStorageService {
             return "/uploads/" + uniqueFileName;
 
         } catch (IOException ex) {
-            throw new RuntimeException("Could not store file " + uniqueFileName + ". Please try again!", ex);
+            throw new RuntimeException("Impossible d’enregistrer le fichier " + uniqueFileName + ". Veuillez réessayer.", ex);
         }
     }
 }

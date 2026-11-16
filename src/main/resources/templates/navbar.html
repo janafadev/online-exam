@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <!-- We can add a <style> tag for the profile picture -->
@@ -19,41 +19,41 @@
 <!-- th:fragment="navbar" defines a reusable fragment -->
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">Online Exam System</a>
+        <a class="navbar-brand" th:href="@{/}">Examens en ligne</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Afficher ou masquer la navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Home</a>
+                    <a class="nav-link" th:href="@{/}">Accueil</a>
                 </li>
 
                 <!-- Admin Links -->
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/dashboard}">Manage Exams</a>
+                    <a class="nav-link" th:href="@{/admin/dashboard}">Tableau de bord</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/students}">Manage Students</a>
+                    <a class="nav-link" th:href="@{/admin/students}">Gérer les étudiants</a>
                 </li>
 
                 <!-- Student Links -->
                 <li class="nav-item" sec:authorize="hasRole('STUDENT')">
-                    <a class="nav-link" th:href="@{/student/dashboard}">Dashboard</a>
+                    <a class="nav-link" th:href="@{/student/dashboard}">Tableau de bord</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('STUDENT')">
-                    <a class="nav-link" th:href="@{/student/my-results}">My Results</a>
+                    <a class="nav-link" th:href="@{/student/my-results}">Mes résultats</a>
                 </li>
             </ul>
 
             <!-- Login/Register/Logout Links -->
             <ul class="navbar-nav ms-auto">
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/login}">Login</a>
+                    <a class="nav-link" th:href="@{/login}">Connexion</a>
                 </li>
                 <li class="nav-item" sec:authorize="!isAuthenticated()">
-                    <a class="nav-link" th:href="@{/register}">Create Account</a>
+                    <a class="nav-link" th:href="@{/register}">Créer un compte</a>
                 </li>
 
                 <!-- If user is authenticated -->
@@ -64,7 +64,7 @@
                         <!-- 1. If user has a profile pic -->
                         <img th:if="${globalProfilePicUrl != null}"
                              th:src="@{${globalProfilePicUrl}}"
-                             alt="Profile"
+                             alt="Photo de profil"
                              class="navbar-profile-pic">
 
                         <!-- 2. If user does NOT have a pic, show a default icon -->
@@ -81,7 +81,7 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                         <li>
-                            <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">Logout</a>
+                            <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit();">Déconnexion</a>
                             <form th:action="@{/logout}" method="post" id="logoutForm" class="d-none"></form>
                         </li>
                     </ul>

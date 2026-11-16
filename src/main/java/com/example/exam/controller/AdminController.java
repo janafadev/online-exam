@@ -115,7 +115,7 @@ public class AdminController {
         question.setExam(exam);
         questionRepository.save(question);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Question added successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", "La question a été ajoutée.");
 
         return "redirect:/admin/exam/" + examId + "/question/add";
     }
@@ -206,13 +206,13 @@ public class AdminController {
                                  RedirectAttributes redirectAttributes) { // <-- Added RedirectAttributes
         try {
             questionRepository.deleteById(questionId);
-            redirectAttributes.addFlashAttribute("successMessage", "Question deleted successfully.");
+            redirectAttributes.addFlashAttribute("successMessage", "La question a été supprimée.");
 
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Cannot delete this question. It has already been answered by one or more students and is part of their exam results.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Impossible de supprimer cette question : elle a déjà reçu une réponse et figure dans les résultats d’un ou plusieurs étudiants.");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred while trying to delete the question.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur inattendue s’est produite lors de la suppression de la question.");
         }
 
         return "redirect:/admin/exam/manage-questions/" + examId;
@@ -234,7 +234,7 @@ public class AdminController {
             // 1. Find the student
             Optional<User> studentOpt = userRepository.findById(id);
             if (studentOpt.isEmpty()) {
-                throw new IllegalArgumentException("Invalid student Id:" + id);
+                throw new IllegalArgumentException("Identifiant étudiant invalide : " + id);
             }
             User student = studentOpt.get();
 
@@ -247,13 +247,13 @@ public class AdminController {
             // 4. NOW it is safe to delete the "parent" (User)
             userRepository.delete(student);
 
-            redirectAttributes.addFlashAttribute("successMessage", "Student account and all associated results have been deleted.");
+            redirectAttributes.addFlashAttribute("successMessage", "Le compte étudiant et tous les résultats associés ont été supprimés.");
 
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Could not delete student. A database integrity error occurred.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Impossible de supprimer l’étudiant en raison d’une erreur d’intégrité de la base de données.");
 
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while trying to delete the student account: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur s’est produite lors de la suppression du compte étudiant : " + e.getMessage());
         }
         return "redirect:/admin/students";
     }
@@ -265,7 +265,7 @@ public class AdminController {
                                        RedirectAttributes redirectAttributes) {
 
         if (newPassword.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Password cannot be empty.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Le mot de passe ne peut pas être vide.");
             return "redirect:/admin/students";
         }
 
@@ -277,11 +277,10 @@ public class AdminController {
             student.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(student);
 
-            redirectAttributes.addFlashAttribute("successMessage", "Password for " + student.getUsername() + " has been reset.");
+            redirectAttributes.addFlashAttribute("successMessage", "Le mot de passe de " + student.getUsername() + " a été réinitialisé.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while trying to reset the password.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Une erreur s’est produite lors de la réinitialisation du mot de passe.");
         }
         return "redirect:/admin/students";
     }
 }
-

@@ -143,7 +143,7 @@ public class StudentController {
 
         userRepository.save(student);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Profile details updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", "Les informations du profil ont été mises à jour.");
         return "redirect:/student/profile";
     }
 
@@ -153,7 +153,7 @@ public class StudentController {
                                        RedirectAttributes redirectAttributes) {
 
         if (profilePicFile.isEmpty()) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Please select a file to upload.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Veuillez sélectionner un fichier à téléverser.");
             return "redirect:/student/profile";
         }
 
@@ -162,9 +162,9 @@ public class StudentController {
             String filePath = fileStorageService.saveFile(profilePicFile);
             student.setProfilePicUrl(filePath);
             userRepository.save(student);
-            redirectAttributes.addFlashAttribute("successMessage", "Profile picture updated successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "La photo de profil a été mise à jour.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error uploading file: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Erreur lors du téléversement du fichier : " + e.getMessage());
         }
 
         return "redirect:/student/profile";
@@ -185,13 +185,13 @@ public class StudentController {
 
         // 1. Check if newPassword and confirmPassword match
         if (!newPassword.equals(confirmPassword)) {
-            redirectAttributes.addFlashAttribute("errorMessage", "New passwords do not match.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Les nouveaux mots de passe ne correspondent pas.");
             return "redirect:/student/profile";
         }
 
         // 2. Check if the oldPassword is correct
         if (!passwordEncoder.matches(oldPassword, student.getPassword())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Incorrect old password.");
+            redirectAttributes.addFlashAttribute("errorMessage", "L’ancien mot de passe est incorrect.");
             return "redirect:/student/profile";
         }
 
@@ -199,7 +199,7 @@ public class StudentController {
         student.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(student);
 
-        redirectAttributes.addFlashAttribute("successMessage", "Password updated successfully!");
+        redirectAttributes.addFlashAttribute("successMessage", "Le mot de passe a été mis à jour.");
         return "redirect:/student/profile";
     }
 

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Tableau de bord administrateur</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -124,8 +125,8 @@
     <div class="d-flex align-items-center mb-4">
 
         <div class="ms-3">
-            <h2 class="mb-0">Welcome, Admin!</h2>
-            <p class="mb-0 text-muted">Here's a summary of your platform's activity.</p>
+            <h2 class="mb-0">Bienvenue, administrateur !</h2>
+            <p class="mb-0 text-muted">Voici un résumé de l’activité de la plateforme.</p>
         </div>
     </div>
 
@@ -134,28 +135,28 @@
         <div class="col-md-3">
             <div class="kpi-card bg-gradient-primary p-3">
                 <div class="kpi-value" th:text="${totalStudents}">0</div>
-                <div class_l="kpi-label">Total Students</div>
+                <div class="kpi-label">Nombre d’étudiants</div>
                 <i class="bi bi-people-fill kpi-icon"></i>
             </div>
         </div>
         <div class="col-md-3">
             <div class="kpi-card bg-gradient-success p-3">
                 <div class="kpi-value" th:text="${totalExams}">0</div>
-                <div class="kpi-label">Total Exams</div>
+                <div class="kpi-label">Nombre d’examens</div>
                 <i class="bi bi-journal-text kpi-icon"></i>
             </div>
         </div>
         <div class="col-md-3">
             <div class="kpi-card bg-gradient-info p-3">
                 <div class="kpi-value" th:text="${totalQuestions}">0</div>
-                <div class="kpi-label">Total Questions</div>
+                <div class="kpi-label">Nombre de questions</div>
                 <i class="bi bi-question-circle-fill kpi-icon"></i>
             </div>
         </div>
         <div class="col-md-3">
             <div class="kpi-card bg-gradient-warning p-3">
                 <div class="kpi-value" th:text="${totalSubmissions}">0</div>
-                <div class="kpi-label">Total Submissions</div>
+                <div class="kpi-label">Nombre de copies soumises</div>
                 <i class="bi bi-card-checklist kpi-icon"></i>
             </div>
         </div>
@@ -170,7 +171,7 @@
               as .chart-container already has all the styles.
             -->
             <div class="chart-container">
-                <h5 class="mb-3">Exam Submissions</h5>
+                <h5 class="mb-3">Soumissions par examen</h5>
                 <canvas id="submissionsChart"></canvas>
             </div>
         </div>
@@ -178,17 +179,17 @@
         <!-- Quick Actions & Activity -->
         <div class="col-lg-5">
             <div class="styled-card">
-                <div class="card-header">Quick Actions</div>
+                <div class="card-header">Actions rapides</div>
                 <!-- Quick Actions List -->
                 <div class="list-group list-group-flush">
                     <a th:href="@{/admin/manage-exams}" class="quick-action-btn">
-                        <i class="bi bi-pencil-square text-primary"></i>Manage Exams
+                        <i class="bi bi-pencil-square text-primary"></i>Gérer les examens
                     </a>
                     <a th:href="@{/admin/students}" class="quick-action-btn">
-                        <i class="bi bi-people-fill text-info"></i>Manage Students
+                        <i class="bi bi-people-fill text-info"></i>Gérer les étudiants
                     </a>
                     <a th:href="@{/admin/exam/add}" class="quick-action-btn">
-                        <i class="bi bi-plus-circle-fill text-success"></i>Create New Exam
+                        <i class="bi bi-plus-circle-fill text-success"></i>Créer un examen
                     </a>
                 </div>
 
@@ -215,7 +216,7 @@
             data: {
                 labels: chartLabels,
                 datasets: [{
-                    label: '# of Submissions',
+                    label: 'Nombre de soumissions',
                     data: chartData,
                     backgroundColor: 'rgba(13, 110, 253, 0.2)',
                     borderColor: 'rgba(13, 110, 253, 1)',

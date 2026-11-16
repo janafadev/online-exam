@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <title>Student Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Tableau de bord étudiant</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
@@ -60,7 +61,7 @@
     <!-- Profile Pic -->
     <img th:if="${student.profilePicUrl != null}"
          th:src="@{${student.profilePicUrl}}"
-         alt="Profile"
+         alt="Photo de profil"
          class="profile-pic-header me-3">
     <svg th:if="${student.profilePicUrl == null}"
          xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor"
@@ -70,14 +71,14 @@
     </svg>
     <!-- Welcome Text -->
     <div>
-      <h2 class="mb-0">Welcome back, <span th:text="${student.fullName}"></span>!</h2>
-      <p class="mb-0 text-muted">Here is your performance overview.</p>
+      <h2 class="mb-0">Bon retour, <span th:text="${student.fullName}"></span> !</h2>
+      <p class="mb-0 text-muted">Voici un aperçu de vos résultats.</p>
     </div>
   </div>
 
   <!-- Unauthorized Error Message -->
   <div th:if="${param.error == 'unauthorized'}" class="alert alert-danger" role="alert">
-    You are not authorized to review that exam result.
+    Vous n’êtes pas autorisé(e) à consulter ce résultat d’examen.
   </div>
 
   <!-- --- 2. NEW: KPI Stat Cards --- -->
@@ -86,21 +87,21 @@
       <div class="kpi-card">
         <div class="kpi-icon text-primary"><i class="bi bi-journal-check"></i></div>
         <div class="kpi-value" th:text="${totalTaken}">0</div>
-        <div class="kpi-label">Exams Taken</div>
+        <div class="kpi-label">Examens passés</div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="kpi-card">
         <div class="kpi-icon text-success"><i class="bi bi-bar-chart-line-fill"></i></div>
         <div class="kpi-value" th:text="${#numbers.formatDecimal(averageScore, 1, 1) + '%'}">0.0%</div>
-        <div class="kpi-label">Average Score</div>
+        <div class="kpi-label">Moyenne</div>
       </div>
     </div>
     <div class="col-md-4">
       <div class="kpi-card">
         <div class="kpi-icon text-warning"><i class="bi bi-trophy-fill"></i></div>
         <div class="kpi-value" th:text="${highestScore} + '%'">0%</div>
-        <div class="kpi-label">Highest Score</div>
+        <div class="kpi-label">Meilleur résultat</div>
       </div>
     </div>
   </div>
@@ -109,7 +110,7 @@
   <div class="row mb-4">
     <div class="col-12">
       <div class="chart-container">
-        <h5 class="mb-3">Score History (%)</h5>
+        <h5 class="mb-3">Évolution des résultats (%)</h5>
         <!-- The chart will be drawn here -->
         <canvas id="scoreChart"></canvas>
       </div>
@@ -122,21 +123,21 @@
     <div class="col-lg-5">
       <div class="card shadow-sm mb-4" style="height: 100%;">
         <div class="card-header bg-white py-3">
-          <h5 class="mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>Available Exams</h5>
+          <h5 class="mb-0"><i class="bi bi-pencil-square me-2 text-primary"></i>Examens disponibles</h5>
         </div>
         <ul class="list-group list-group-flush">
           <th:block th:if="${#lists.isEmpty(availableExams)}">
             <li class="list-group-item text-center text-muted p-4">
               <i class="bi bi-emoji-smile fs-1"></i><br>
-              You're all caught up! No new exams are available right now.
+              Vous êtes à jour ! Aucun nouvel examen n’est disponible pour le moment.
             </li>
           </th:block>
           <li th:each="exam : ${availableExams}" class="list-group-item d-flex justify-content-between align-items-center p-3">
             <div>
-              <h6 class="mb-0" th:text="${exam.title}">Exam Title</h6>
-              <small class="text-muted" th:text="|${exam.durationInMinutes} minutes • ${#lists.size(exam.questions)} questions|">60 minutes</small>
+              <h6 class="mb-0" th:text="${exam.title}">Titre de l’examen</h6>
+              <small class="text-muted" th:text="|${exam.durationInMinutes} min • ${#lists.size(exam.questions)} questions|">60 minutes</small>
             </div>
-            <a th:href="@{/exam/{id}(id=${exam.id})}" class="btn btn-primary btn-sm">Start Exam</a>
+            <a th:href="@{/exam/{id}(id=${exam.id})}" class="btn btn-primary btn-sm">Commencer l’examen</a>
           </li>
         </ul>
       </div>
@@ -146,15 +147,15 @@
     <div class="col-lg-7">
       <div class="card shadow-sm mb-4" style="height: 100%;">
         <div class="card-header bg-white py-3">
-          <h5 class="mb-0"><i class="bi bi-check-circle-fill me-2 text-success"></i>Your Past Results</h5>
+          <h5 class="mb-0"><i class="bi bi-check-circle-fill me-2 text-success"></i>Vos résultats précédents</h5>
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead>
             <tr>
-              <th>Exam</th>
-              <th>Score</th>
-              <th>Percentage</th>
+              <th>Examen</th>
+              <th>Résultat</th>
+              <th>Pourcentage</th>
               <th>Action</th>
             </tr>
             </thead>
@@ -163,14 +164,14 @@
               <tr>
                 <td colspan="4" class="text-center text-muted p-4">
                   <i class="bi bi-book fs-1"></i><br>
-                  You have not completed any exams yet.
+                  Vous n’avez encore terminé aucun examen.
                 </td>
               </tr>
             </th:block>
             <tr th:each="result : ${pastResults}">
               <td>
                 <span class="fw-bold" th:text="${result.exam.title}">Java Basics</span><br>
-                <small class="text-muted" th:text="${#temporals.format(result.submissionTime, 'MMM dd, yyyy')}"></small>
+                <small class="text-muted" th:text="${#temporals.format(result.submissionTime, 'dd/MM/yyyy')}"></small>
               </td>
               <td>
                 <span th:text="${result.scoreAchieved}"></span> /
@@ -184,7 +185,7 @@
               </td>
               <td>
                 <a th:href="@{/student/review/{id}(id=${result.id})}" class="btn btn-sm btn-info">
-                  Review
+                  Consulter
                 </a>
               </td>
             </tr>
@@ -222,7 +223,7 @@
       data: {
         labels: chartLabels,
         datasets: [{
-          label: 'Score (%)',
+          label: 'Résultat (%)',
           data: chartData,
           backgroundColor: gradient,
           borderColor: '#0d6efd',
@@ -252,7 +253,7 @@
             displayColors: false,
             callbacks: {
               label: function(context) {
-                return `Score: ${context.parsed.y}%`;
+                return `Résultat : ${context.parsed.y}%`;
               }
             }
           }

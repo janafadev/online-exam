@@ -71,7 +71,7 @@ public class AuthController {
 
         // Check if user (email) already exists
         if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.rejectValue("username", "error.user", "An account already exists with that email.");
+            bindingResult.rejectValue("username", "error.user", "Un compte existe déjà avec cette adresse e-mail.");
         }
 
         if (bindingResult.hasErrors()) {
@@ -87,7 +87,7 @@ public class AuthController {
             } catch (Exception e) {
                 // Handle file save error
                 model.addAttribute("user", user);
-                model.addAttribute("fileError", "Could not save profile picture. Please try again.");
+                model.addAttribute("fileError", "Impossible d’enregistrer la photo de profil. Veuillez réessayer.");
                 return "register";
             }
         }

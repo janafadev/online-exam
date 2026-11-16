@@ -22,13 +22,12 @@ function startTimer(durationInMinutes, displayElement, formElement) {
         // Check if the timer has run out
         if (--timer < 0) {
             clearInterval(interval);
-            displayElement.textContent = "TIME'S UP";
+            displayElement.textContent = "TEMPS ÉCOULÉ";
             displayElement.style.color = "red"; // Make it obvious
 
             // !!! THIS IS THE AUTO-SUBMIT !!!
-            alert("Time's up! Your exam will now be submitted."); // Give user a heads-up
+            alert("Le temps est écoulé ! Votre examen va être soumis."); // Give user a heads-up
             formElement.submit();
         }
     }, 1000); // Update every second
 }
-
