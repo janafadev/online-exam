@@ -2,8 +2,9 @@
 pipeline {
     agent any
 
+    // Declenchement automatique lors d'un push GitHub
     triggers {
-        pollSCM('H/2 * * * *')
+        githubPush()
     }
 
     options {
@@ -74,12 +75,12 @@ pipeline {
         stage('Check Infrastructure') {
             steps {
                 sh '''
-                    echo "=== Verification du reseau Docker ==="
+                    set -eu
 
+                    echo "=== Verification du reseau Docker ==="
                     docker network inspect "$DOCKER_NETWORK" >/dev/null
 
                     echo "=== Verification MySQL ==="
-
                     docker container inspect "$MYSQL_CONTAINER" >/dev/null
 
                     docker exec "$MYSQL_CONTAINER" \
@@ -93,7 +94,6 @@ pipeline {
         stage('Compile') {
             steps {
                 echo 'Compilation du projet...'
-
                 sh './mvnw clean compile'
             }
         }
@@ -101,7 +101,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Execution des tests unitaires...'
-
                 sh './mvnw test'
             }
         }
@@ -109,7 +108,6 @@ pipeline {
         stage('Package JAR') {
             steps {
                 echo 'Creation du fichier JAR...'
-
                 sh './mvnw package -DskipTests'
             }
         }
@@ -139,14 +137,16 @@ pipeline {
                 echo 'Construction de l image Docker...'
 
                 sh '''
+                    set -eu
+
                     docker info >/dev/null
 
                     docker build \
                         --pull \
                         -t "$IMAGE_NAME" .
-                '''
 
-                echo 'Image Docker construite.'
+                    echo "Image Docker construite : $IMAGE_NAME"
+                '''
             }
         }
 
@@ -169,10 +169,14 @@ pipeline {
 
                         docker volume create "$UPLOAD_VOLUME" >/dev/null
 
-                        echo "=== Verification de MySQL ==="
+                        echo "=== Verification MySQL ==="
 
                         docker exec "$MYSQL_CONTAINER" \
                             mysqladmin ping -h 127.0.0.1 --silent
+
+                        echo "=== Verification de la connexion reseau ==="
+
+                        docker network inspect "$DOCKER_NETWORK" >/dev/null
 
                         echo "=== Suppression ancienne version ==="
 
@@ -195,6 +199,8 @@ pipeline {
 
                         echo "=== Verification du demarrage ==="
 
+                        STARTED=false
+
                         for i in $(seq 1 45); do
 
                             RUNNING=$(docker inspect \
@@ -208,23 +214,28 @@ pipeline {
                             fi
 
                             if docker logs "$CONTAINER_NAME" 2>&1 | grep -q "Started "; then
-                                echo "Application Spring Boot demarree."
-
-                                echo "=== Nettoyage des anciennes images ==="
-
-                                docker image prune -f
-
-                                echo "Deploiement termine avec succes."
-                                exit 0
+                                STARTED=true
+                                break
                             fi
 
                             sleep 2
                         done
 
-                        echo "ERREUR : timeout au demarrage."
+                        if [ "$STARTED" != "true" ]; then
+                            echo "ERREUR : timeout au demarrage."
 
-                        docker logs "$CONTAINER_NAME"
-                        exit 1
+                            docker logs "$CONTAINER_NAME" || true
+
+                            exit 1
+                        fi
+
+                        echo "Application Spring Boot demarree."
+
+                        echo "=== Verification du conteneur ==="
+
+                        docker ps --filter "name=$CONTAINER_NAME"
+
+                        echo "=== Deploiement termine avec succes ==="
                     '''
                 }
             }
@@ -260,7 +271,11 @@ pipeline {
             echo 'Verification des logs du conteneur...'
 
             sh '''
-                docker logs online-exam 2>&1 | tail -100 || true
+                if docker container inspect online-exam >/dev/null 2>&1; then
+                    docker logs --tail 100 online-exam 2>&1 || true
+                else
+                    echo "Le conteneur online-exam n'existe pas."
+                fi
             '''
         }
     }
